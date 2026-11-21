@@ -26,3 +26,10 @@ API kalitlarini GitHub’ga yozmang. Ularni faqat hosting/server environment var
 
 - FREE: oyiga 250 ta xabar
 - PREMIUM: oyiga 29 000 so‘m, oyiga 1 500 ta xabar
+
+## Yangi qo‘shilgan bosqich
+
+- `supabase/schema.sql`: foydalanuvchi profili, FREE/PREMIUM tariflari va oyma-oy limit hisoblagichi uchun SQL.
+- `supabase/README.md`: Supabase ulash yo‘riqnomasi.
+
+Bu fayllar arxitektura sifatida tayyor; Supabase loyihasi va server environment variables hali ulanmagan.
