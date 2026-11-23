@@ -9,6 +9,10 @@ const origin = process.env.ALLOWED_ORIGIN || '*';
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseAnonKey = process.env.SUPABASE_ANON_KEY;
 const supabaseAdminKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const aiProvider = process.env.AI_PROVIDER || 'none';
+const aiApiKey = process.env.AI_API_KEY || '';
+const aiBaseUrl = (process.env.AI_BASE_URL || 'https://api.openai.com/v1').replace(/\\/$/, '');
+const aiModel = process.env.AI_MODEL || 'gpt-4o-mini';
 const supabaseAdmin = supabaseUrl && supabaseAdminKey
   ? createClient(supabaseUrl, supabaseAdminKey, { auth: { autoRefreshToken: false, persistSession: false } })
   : null;
@@ -40,11 +44,27 @@ async function getUserFromBearer(req, res) {
 }
 
 app.get('/health', (_req, res) => {
-  res.json({ ok: true, service: 'zenai-api', supabaseConfigured: Boolean(supabaseAdmin), aiProvider: process.env.AI_PROVIDER || 'none' });
+  res.json({
+    ok: true,
+    service: 'zenai-api',
+    supabaseConfigured: Boolean(supabaseAdmin),
+    aiProvider,
+    aiConfigured: Boolean(aiApiKey && aiProvider !== 'none')
+  });
 });
 
 app.get('/api/config', (_req, res) => {
-  res.json({ freeLimit: 250, premiumLimit: 1500, premiumPriceUzs: 29000, integrations: { auth: Boolean(supabaseAdmin), database: Boolean(supabaseAdmin), ai: false, payments: false } });
+  res.json({
+    freeLimit: 250,
+    premiumLimit: 1500,
+    premiumPriceUzs: 29000,
+    integrations: {
+      auth: Boolean(supabaseAdmin),
+      database: Boolean(supabaseAdmin),
+      ai: Boolean(aiApiKey && aiProvider !== 'none'),
+      payments: false
+    }
+  });
 });
 
 app.get('/api/me', async (req, res) => {
@@ -77,7 +97,29 @@ app.post('/api/chat', async (req, res) => {
   if (reservation.error) return res.status(500).json({ error: 'USAGE_RESERVE_FAILED', details: reservation.error.message });
   const row = Array.isArray(reservation.data) ? reservation.data[0] : reservation.data;
   if (!row?.allowed) return res.status(429).json({ error: 'MONTHLY_LIMIT_REACHED', message: 'Oylik limit tugagan.', remaining: 0 });
-  res.status(501).json({ error: 'AI_PROVIDER_NOT_CONFIGURED', message: 'Limitdan 1 ta foydalanish band qilindi, lekin AI provayder ulanmagan.', remaining: row.remaining });
+  if (!aiApiKey || aiProvider === 'none') {
+    await supabaseAdmin.rpc('refund_usage', { p_user_id: user.id });
+    return res.status(503).json({ error: 'AI_PROVIDER_NOT_CONFIGURED', message: 'AI provayder sozlanmagan. Limit qaytarildi.', remaining: row.remaining + 1 });
+  }
+  try {
+    const response = await fetch(aiBaseUrl + '/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + aiApiKey },
+      body: JSON.stringify({
+        model: aiModel,
+        messages: [{ role: 'user', content: message.trim() }],
+        temperature: 0.7
+      })
+    });
+    const payload = await response.json();
+    if (!response.ok) throw new Error(payload?.error?.message || 'AI provider request failed');
+    const reply = payload?.choices?.[0]?.message?.content || '';
+    if (!reply) throw new Error('AI provider returned an empty response');
+    return res.json({ reply, remaining: row.remaining, provider: aiProvider, model: aiModel });
+  } catch (error) {
+    await supabaseAdmin.rpc('refund_usage', { p_user_id: user.id });
+    return res.status(502).json({ error: 'AI_PROVIDER_FAILED', message: 'AI provayderdan javob olishda xatolik. Limit qaytarildi.', details: error.message });
+  }
 });
 
 app.use((_req, res) => res.status(404).json({ error: 'NOT_FOUND' }));
