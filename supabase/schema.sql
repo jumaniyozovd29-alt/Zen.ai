@@ -42,3 +42,18 @@ end;
 $$;
 
 grant execute on function public.reserve_usage(uuid) to authenticated;
+
+create or replace function public.refund_usage(p_user_id uuid)
+returns boolean
+language plpgsql security definer set search_path = public as $$
+begin
+  update public.profiles
+  set usage_count = greatest(usage_count - 1, 0)
+  where id = p_user_id
+    and usage_month = date_trunc('month', now())::date
+    and usage_count > 0;
+  return found;
+end;
+$$;
+
+grant execute on function public.refund_usage(uuid) to authenticated;
