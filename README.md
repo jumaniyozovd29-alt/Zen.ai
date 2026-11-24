@@ -5,6 +5,7 @@ O‘zbek tilidagi AI platforma: AI Chat, Image AI, Video AI va 3D Video AI.
 ## Hozirgi holat
 
 - Frontend prototipi: mavjud
+- Auth sahifasi: `auth.html` qo‘shildi (Supabase email/password)
 - Backend health/config endpointlari: mavjud
 - AI provayderi: ulanmagan
 - Autentifikatsiya va ma’lumotlar bazasi: ulanmagan
@@ -17,6 +18,7 @@ O‘zbek tilidagi AI platforma: AI Chat, Image AI, Video AI va 3D Video AI.
 1. Node.js 18+ o‘rnating.
 2. `npm install`
 3. `.env.example` faylidan `.env` yarating.
+4. Supabase SQL Editor’da `supabase/schema.sql` ni ishga tushiring.
 4. `npm start`
 5. `GET /health` orqali tekshiring.
 
