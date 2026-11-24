@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="uz">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ZENAI — Kirish</title>
+<style>
+body{margin:0;background:#090d18;color:#f4f7fb;font:16px system-ui,sans-serif;display:grid;place-items:center;min-height:100vh}
+.card{width:min(420px,calc(100% - 32px));background:#111827;border:1px solid #263248;border-radius:22px;padding:28px;box-sizing:border-box}
+h1{margin:0 0 8px}.muted{color:#a4b0c3;font-size:14px}.row{display:grid;gap:10px;margin-top:18px}
+input{padding:13px 14px;border-radius:12px;border:1px solid #34435d;background:#0c1423;color:#fff;font:inherit}
+button{padding:13px 14px;border:0;border-radius:12px;background:#6d8cff;color:#07111e;font-weight:800;cursor:pointer}
+button.secondary{background:#ffffff0b;color:#fff;border:1px solid #34435d}
+#status{margin-top:14px;font-size:13px;min-height:20px}
+a{color:#91aaff}
+</style></head>
+<body><main class="card">
+<h1>ZENAI hisobiga kirish</h1>
+<p class="muted">Supabase Auth orqali ro‘yxatdan o‘ting yoki kiring.</p>
+<div class="row"><input id="email" type="email" placeholder="Email" autocomplete="email"><input id="password" type="password" placeholder="Parol" autocomplete="current-password"></div>
+<div class="row"><button id="signup">Ro‘yxatdan o‘tish</button><button id="login" class="secondary">Kirish</button></div>
+<p id="status" class="muted"></p>
+<p class="muted"><a href="index.html">← Bosh sahifaga qaytish</a></p>
+<script type="module">
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+const SUPABASE_URL = window.ZENAI_SUPABASE_URL || '';
+const SUPABASE_ANON_KEY = window.ZENAI_SUPABASE_ANON_KEY || '';
+const statusEl=document.querySelector('#status');
+const email=document.querySelector('#email');
+const password=document.querySelector('#password');
+const setStatus=(m)=>statusEl.textContent=m;
+if(!SUPABASE_URL||!SUPABASE_ANON_KEY){setStatus('Supabase URL va anon key hali konfiguratsiya qilinmagan.');}
+const supabase=createClient(SUPABASE_URL||'https://placeholder.invalid',SUPABASE_ANON_KEY||'placeholder');
+async function act(kind){
+  if(!SUPABASE_URL||!SUPABASE_ANON_KEY) return;
+  if(!email.value||!password.value) return setStatus('Email va parolni kiriting.');
+  const result=kind==='signup'
+    ? await supabase.auth.signUp({email:email.value,password:password.value})
+    : await supabase.auth.signInWithPassword({email:email.value,password:password.value});
+  if(result.error) return setStatus(result.error.message);
+  setStatus(kind==='signup'?'Tasdiqlash emaili yuborildi.':'Kirish muvaffaqiyatli. Bosh sahifaga o‘tilmoqda.');
+  if(kind==='login') setTimeout(()=>location.href='index.html',700);
+}
+document.querySelector('#signup').onclick=()=>act('signup');
+document.querySelector('#login').onclick=()=>act('login');
+</script>
+</main></body></html>
