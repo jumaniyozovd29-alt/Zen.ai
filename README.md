@@ -4,34 +4,31 @@ O‘zbek tilidagi AI platforma: AI Chat, Image AI, Video AI va 3D Video AI.
 
 ## Hozirgi holat
 
-- Frontend prototipi: mavjud
-- Auth sahifasi: `auth.html` qo‘shildi (Supabase email/password)
+- Frontend landing page: index.html
+- Auth sahifasi: auth.html (Supabase email/password)
+- Authenticated chat sahifasi: app.html
 - Backend health/config endpointlari: mavjud
-- AI provayderi: ulanmagan
-- Autentifikatsiya va ma’lumotlar bazasi: ulanmagan
-- Limit hisoblagichi: ulanmagan
+- AI provayderi: kod orqali tayyor, lekin real API kaliti ulanmagan
+- Supabase schema va limit funksiyalari: mavjud, lekin Supabase project’da ishga tushirilishi kerak
 - To‘lov tizimi: ulanmagan
 - Hosting va domen: ulanmagan
 
 ## Lokal ishga tushirish
 
 1. Node.js 18+ o‘rnating.
-2. `npm install`
-3. `.env.example` faylidan `.env` yarating.
-4. Supabase SQL Editor’da `supabase/schema.sql` ni ishga tushiring.
-4. `npm start`
-5. `GET /health` orqali tekshiring.
+2. npm install
+3. .env.example faylidan .env yarating.
+4. Supabase SQL Editor’da supabase/schema.sql ni ishga tushiring.
+5. npm start
+6. GET /health orqali tekshiring.
+
+Frontend uchun auth.html va app.html ichidagi ZENAI_SUPABASE_URL, ZENAI_SUPABASE_ANON_KEY qiymatlarini kiritish kerak. Backend API manzili uchun ZENAI_API_BASE o‘zgaruvchisini moslang.
 
 API kalitlarini GitHub’ga yozmang. Ularni faqat hosting/server environment variables ichida saqlang.
 
-## Kelishilgan tariflar
+## Tariflar
 
 - FREE: oyiga 250 ta xabar
 - PREMIUM: oyiga 29 000 so‘m, oyiga 1 500 ta xabar
 
-## Yangi qo‘shilgan bosqich
-
-- `supabase/schema.sql`: foydalanuvchi profili, FREE/PREMIUM tariflari va oyma-oy limit hisoblagichi uchun SQL.
-- `supabase/README.md`: Supabase ulash yo‘riqnomasi.
-
-Bu fayllar arxitektura sifatida tayyor; Supabase loyihasi va server environment variables hali ulanmagan.
+Bu repo prototip va backend skeletini saqlaydi. Supabase, AI provider va hosting real sozlanmaguncha platforma ommaviy ishlab turgan deb hisoblanmaydi.
