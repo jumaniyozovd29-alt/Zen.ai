@@ -32,3 +32,14 @@ API kalitlarini GitHub’ga yozmang. Ularni faqat hosting/server environment var
 - PREMIUM: oyiga 29 000 so‘m, oyiga 1 500 ta xabar
 
 Bu repo prototip va backend skeletini saqlaydi. Supabase, AI provider va hosting real sozlanmaguncha platforma ommaviy ishlab turgan deb hisoblanmaydi.
+
+## API xavfsizlik himoyasi
+
+- CORS: ALLOWED_ORIGIN orqali domenlar ro‘yxati bilan cheklanadi.
+- Rate limit: API uchun bir IP/token bo‘yicha daqiqasiga 30 ta so‘rov (RATE_LIMIT_PER_MINUTE bilan o‘zgartiriladi).
+- Chat xabari maksimal 8000 belgi.
+- Production rejimida ichki xato tafsilotlari qaytarilmaydi.
+
+## Frontend konfiguratsiyasi
+
+config.example.js faylidan nusxa olib config.js yarating va Supabase URL, anon key hamda backend API manzilini kiriting. service_role kalitini browser fayliga hech qachon qo‘ymang. Hozirgi auth.html va app.html ichidagi konfiguratsiya o‘zgaruvchilarini shu qiymatlar bilan moslang.
