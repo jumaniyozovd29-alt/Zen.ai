@@ -43,3 +43,29 @@ Bu repo prototip va backend skeletini saqlaydi. Supabase, AI provider va hosting
 ## Frontend konfiguratsiyasi
 
 config.example.js faylidan nusxa olib config.js yarating va Supabase URL, anon key hamda backend API manzilini kiriting. service_role kalitini browser fayliga hech qachon qo‘ymang. Hozirgi auth.html va app.html ichidagi konfiguratsiya o‘zgaruvchilarini shu qiymatlar bilan moslang.
+
+
+## Production deploy (Railway yoki Docker)
+
+Repozitoriyada Dockerfile, .dockerignore va railway.toml mavjud. Railway’da GitHub repositoriyasini ulang; build avtomatik Dockerfile orqali ishlaydi. Service Variables bo‘limiga quyidagilarni kiriting:
+
+- PORT=3000
+- NODE_ENV=production
+- ALLOWED_ORIGIN=https://zenai.uz
+- RATE_LIMIT_PER_MINUTE=30
+- SUPABASE_URL
+- SUPABASE_ANON_KEY
+- SUPABASE_SERVICE_ROLE_KEY
+- AI_PROVIDER
+- AI_BASE_URL
+- AI_MODEL
+- AI_API_KEY
+
+Railway deploy’dan keyin avval `/health` endpointini tekshiring. `supabaseConfigured:true` va `aiConfigured:true` chiqmasa, tashqi sozlama tugallanmagan bo‘ladi. Domen hali ulanmagan bo‘lsa, vaqtincha Railway URL’ini `ALLOWED_ORIGIN` ga qo‘ying.
+
+Docker bilan lokal tekshiruv:
+```bash
+docker build -t zenai-api .
+docker run --env-file .env -p 3000:3000 zenai-api
+curl http://localhost:3000/health
+```
