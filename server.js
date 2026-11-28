@@ -19,6 +19,7 @@ const supabaseAdmin = supabaseUrl && supabaseAdminKey
 
 app.use(cors({ origin: (requestOrigin, callback) => { if (!requestOrigin || allowedOrigins.includes('*') || allowedOrigins.includes(requestOrigin)) return callback(null, true); return callback(new Error('CORS_ORIGIN_NOT_ALLOWED')); } }));
 app.use(express.json({ limit: '1mb' }));
+app.use(express.static(process.cwd(), { index: 'index.html' }));
 
 const requestBuckets = new Map();
 const RATE_WINDOW_MS = 60_000;
@@ -95,7 +96,7 @@ app.post('/api/usage/reserve', async (req, res) => {
   const user = await getUserFromBearer(req, res);
   if (!user) return;
   const { data, error } = await supabaseAdmin.rpc('reserve_usage', { p_user_id: user.id });
-  if (error) return res.status(500).json({ error: 'USAGE_RESERVE_FAILED', details: error.message });
+  if (error) return res.status(500).json({ error: 'USAGE_RESERVE_FAILED', details: process.env.NODE_ENV === 'production' ? undefined : error.message });
   const row = Array.isArray(data) ? data[0] : data;
   if (!row?.allowed) return res.status(429).json({ error: 'MONTHLY_LIMIT_REACHED', message: 'Oylik limit tugagan.', plan: row?.plan || null, remaining: 0 });
   res.json({ allowed: true, plan: row.plan, remaining: row.remaining });
@@ -130,7 +131,7 @@ app.post('/api/chat', async (req, res) => {
     if (!response.ok) throw new Error(payload?.error?.message || 'AI provider request failed');
     const reply = payload?.choices?.[0]?.message?.content || '';
     if (!reply) throw new Error('AI provider returned an empty response');
-    return res.json({ reply, remaining: row.remaining, provider: aiProvider, model: aiModel });
+    return res.json({ reply, remaining: row.remaining, plan: row.plan, provider: aiProvider, model: aiModel });
   } catch (error) {
     await supabaseAdmin.rpc('refund_usage', { p_user_id: user.id });
     return res.status(502).json({ error: 'AI_PROVIDER_FAILED', message: 'AI provayderdan javob olishda xatolik. Limit qaytarildi.', details: error.message });
