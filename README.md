@@ -11,7 +11,7 @@ O‘zbek tilidagi AI platforma: AI Chat, Image AI, Video AI va 3D Video AI.
 - AI provayderi: kod orqali tayyor, lekin real API kaliti ulanmagan
 - Supabase schema va limit funksiyalari: mavjud, lekin Supabase project’da ishga tushirilishi kerak
 - To‘lov tizimi: ulanmagan
-- Hosting va domen: ulanmagan
+- Backend statik frontend fayllarini ham serve qiladi; hosting va domen: ulanmagan
 
 ## Lokal ishga tushirish
 
@@ -22,7 +22,7 @@ O‘zbek tilidagi AI platforma: AI Chat, Image AI, Video AI va 3D Video AI.
 5. npm start
 6. GET /health orqali tekshiring.
 
-Frontend uchun auth.html va app.html ichidagi ZENAI_SUPABASE_URL, ZENAI_SUPABASE_ANON_KEY qiymatlarini kiritish kerak. Backend API manzili uchun ZENAI_API_BASE o‘zgaruvchisini moslang.
+Frontend uchun `config.example.js` nusxasidan `config.js` yarating va `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `API_BASE` qiymatlarini kiriting. `auth.html` va `app.html` shu umumiy konfiguratsiyadan foydalanadi. Backend bir domen ichida serve qilinsa, `API_BASE` ni shu domen manziliga moslang.
 
 API kalitlarini GitHub’ga yozmang. Ularni faqat hosting/server environment variables ichida saqlang.
 
@@ -62,6 +62,8 @@ Repozitoriyada Dockerfile, .dockerignore va railway.toml mavjud. Railway’da Gi
 - AI_API_KEY
 
 Railway deploy’dan keyin avval `/health` endpointini tekshiring. `supabaseConfigured:true` va `aiConfigured:true` chiqmasa, tashqi sozlama tugallanmagan bo‘ladi. Domen hali ulanmagan bo‘lsa, vaqtincha Railway URL’ini `ALLOWED_ORIGIN` ga qo‘ying.
+
+Deploy’dan keyin asosiy tekshiruvlar: `/health`, `/`, `/auth.html`, `/app.html`. Backend endi `index.html`, `auth.html`, `app.html` fayllarini statik serve qiladi.
 
 Docker bilan lokal tekshiruv:
 ```bash
